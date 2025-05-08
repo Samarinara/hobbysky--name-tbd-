@@ -1,11 +1,12 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
+import { resolve } from "path";
 
-// @ts-expect-error process is a nodejs global
+// Get host from environment if available
 const host = process.env.TAURI_DEV_HOST;
 
 // https://vite.dev/config/
-export default defineConfig(async () => ({
+export default defineConfig({
   plugins: [react()],
 
   // Vite options tailored for Tauri development and only applied in `tauri dev` or `tauri build`
@@ -29,4 +30,23 @@ export default defineConfig(async () => ({
       ignored: ["**/src-tauri/**"],
     },
   },
-}));
+  
+  // Add Tauri specific configurations
+  optimizeDeps: {
+    include: ["@tauri-apps/api", "@tauri-apps/api/tauri", "@tauri-apps/api/window"],
+    exclude: [],
+  },
+  resolve: {
+    alias: {
+      '@': resolve(__dirname, './src'),
+    },
+  },
+  build: {
+    // Tauri supports es2021
+    target: ["es2021", "chrome100", "safari13"],
+    // Don't minify for debug builds
+    minify: process.env.TAURI_DEBUG ? false : "esbuild",
+    // Produce sourcemaps for debug builds
+    sourcemap: !!process.env.TAURI_DEBUG,
+  },
+});

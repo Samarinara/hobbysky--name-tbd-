@@ -1,0 +1,199 @@
+import React, { useState, useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import { ArrowLeftIcon, HeartIcon, ArrowPathRoundedSquareIcon, ChatBubbleOvalLeftEllipsisIcon, ShareIcon } from '@heroicons/react/24/outline';
+import { /*Comments,*/ CommentType } from './Comments'; // Keep CommentType if used elsewhere or for future
+import { TweetType } from '../types/types'; // Assuming types.ts exists and exports TweetType
+
+interface TweetDetailProps {
+  tweets: {
+    id: number;
+    name: string;
+    username: string;
+    userImg: string;
+    img?: string;
+    text: string;
+    timestamp: string;
+  }[];
+}
+
+const TweetDetail: React.FC<TweetDetailProps> = ({ tweets }) => {
+  const { tweetId } = useParams<{ tweetId: string }>();
+  const navigate = useNavigate();
+  const [liked, setLiked] = useState(false);
+  const [likeCount, setLikeCount] = useState(35);
+  
+  const tweet = tweets.find(t => t.id === Number(tweetId));
+  
+  // Sample comments for demonstration - more comments added for scrolling
+  const sampleComments: CommentType[] = [
+    {
+      id: 1,
+      username: "alex_m",
+      userImg: "https://i.pravatar.cc/150?img=12",
+      text: "This is really cool! I've been wanting to try this place.",
+      timestamp: "9:42 AM",
+      isOwn: false
+    },
+    {
+      id: 2,
+      username: "you", 
+      userImg: "https://i.pravatar.cc/150?img=3",
+      text: "Let me know if you go there, we could meet up!",
+      timestamp: "9:45 AM",
+      isOwn: true
+    },
+    {
+      id: 3,
+      username: "sarah_j",
+      userImg: "https://i.pravatar.cc/150?img=5",
+      text: "The pastries there are amazing as well. Don't miss them!",
+      timestamp: "10:03 AM",
+      isOwn: false
+    },
+    {
+      id: 4,
+      username: "mike_p",
+      userImg: "https://i.pravatar.cc/150?img=20",
+      text: "I went there last weekend, can confirm it's fantastic. Try their iced caramel macchiato!",
+      timestamp: "10:15 AM",
+      isOwn: false
+    },
+    {
+      id: 5,
+      username: "you", 
+      userImg: "https://i.pravatar.cc/150?img=3",
+      text: "Thanks for the recommendation! Will definitely order that.",
+      timestamp: "10:20 AM",
+      isOwn: true
+    },
+    {
+      id: 6,
+      username: "emma_t",
+      userImg: "https://i.pravatar.cc/150?img=32",
+      text: "The owner is super friendly too. She gave us free cookies with our coffee last time.",
+      timestamp: "10:45 AM",
+      isOwn: false
+    },
+    {
+      id: 7,
+      username: "you", 
+      userImg: "https://i.pravatar.cc/150?img=3",
+      text: "Free cookies? Now I'm definitely going!",
+      timestamp: "11:01 AM",
+      isOwn: true
+    }
+  ];
+  
+  const handleLike = () => {
+    if (liked) {
+      setLikeCount(likeCount - 1);
+    } else {
+      setLikeCount(likeCount + 1);
+    }
+    setLiked(!liked);
+  };
+  
+  if (!tweet) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <h2 className="text-2xl font-bold mb-2">Tweet not found</h2>
+          <button 
+            onClick={() => navigate('/')}
+            className="btn-primary px-4 py-2"
+          >
+            Go back to home
+          </button>
+        </div>
+      </div>
+    );
+  }
+  
+  return (
+    <div className="min-h-screen pb-20">
+      {/* Header */}
+      <div className="flex items-center py-3 px-4 sticky top-0 z-50 bg-white/80 backdrop-blur-md">
+        <button 
+          onClick={() => navigate('/')}
+          className="icon mr-4"
+        >
+          <ArrowLeftIcon className="h-5 w-5" />
+        </button>
+        <h2 className="text-xl font-bold">Tweet</h2>
+      </div>
+      
+      {/* Tweet */}
+      <div className="px-4 mb-6">
+        <div className="flex space-x-4">
+          <img
+            src={tweet.userImg}
+            alt="Profile Picture"
+            className="h-12 w-12 rounded-full cursor-pointer border-2 border-white shadow-sm"
+          />
+          
+          <div className="flex-1">
+            <div className="flex items-center space-x-1 whitespace-nowrap">
+              <h4 className="font-bold text-[16px] sm:text-lg">{tweet.name}</h4>
+              <span className="text-sm sm:text-[15px] text-gray-500">@{tweet.username}</span>
+            </div>
+            
+            <p className="text-gray-900 text-[16px] sm:text-lg my-3">{tweet.text}</p>
+            
+            {tweet.img && (
+              <div className="rounded-xl overflow-hidden my-3 shadow-sm">
+                <img
+                  src={tweet.img}
+                  alt="Tweet image"
+                  className="w-full max-h-80 object-cover"
+                />
+              </div>
+            )}
+            
+            <p className="text-gray-500 text-sm py-3 border-b border-gray-100">
+              {tweet.timestamp} · Twitter Web App
+            </p>
+            
+            <div className="flex justify-between text-gray-500 py-3 border-b border-gray-100">
+              <div className="flex items-center space-x-1">
+                <span className="font-semibold">{Number(tweetId) % 2 === 0 ? sampleComments.length : 0}</span>
+                <span className="text-sm">Comments</span>
+              </div>
+              
+              <div className="flex items-center space-x-1">
+                <span className="font-semibold">12</span>
+                <span className="text-sm">Retweets</span>
+              </div>
+              
+              <div className="flex items-center space-x-1">
+                <span className="font-semibold">{likeCount}</span>
+                <span className="text-sm">Likes</span>
+              </div>
+            </div>
+            
+            <div className="flex justify-around text-gray-500 py-2 border-b border-gray-100">
+              <div className="icon group-hover:bg-blue-100">
+                <ArrowPathRoundedSquareIcon className="h-5 group-hover:text-green-500" />
+              </div>
+              
+              <div className="icon" onClick={handleLike}>
+                <HeartIcon className={`h-5 ${liked ? 'text-red-500 fill-red-500' : ''}`} />
+              </div>
+              
+              <div className="icon group-hover:bg-blue-100">
+                <ShareIcon className="h-5 group-hover:text-blue-400" />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      {/* Comments Section */}
+      <div className="mt-6">
+        <h3 className="text-xl font-semibold mb-3 px-4">Replies</h3>
+        {/* <Comments initialComments={Number(postId) % 2 === 0 ? sampleComments : []} /> */}
+      </div>
+    </div>
+  );
+};
+
+export default TweetDetail; 
